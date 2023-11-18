@@ -1,3 +1,11 @@
+Web App URL: https://video-app-9249-9580-dev.twil.io?passcode=04326392499580
+Passcode: 043 263 9249 9580
+Expires: Thu Nov 23 2023 16:06:07 GMT+0100
+Room Type: group
+Edit your token server at: https://www.twilio.com/console/functions/editor/ZSd4acfec6be894e006f9299af6c7c1c18/environment/ZEe1528b24582377a38276627d11b9e130/function/ZH501c7c7fd47f642ecad1c7a5346e5436
+
+http://localhost:3000/?userName=user1&roomName=testroom1
+
 # Twilio Video React App
 
 [![CircleCI](https://circleci.com/gh/twilio/twilio-video-app-react.svg?style=svg)](https://circleci.com/gh/twilio/twilio-video-app-react)

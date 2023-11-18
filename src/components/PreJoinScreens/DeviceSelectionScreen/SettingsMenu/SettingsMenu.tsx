@@ -88,3 +88,24 @@ export default function SettingsMenu({ mobileButtonClass }: { mobileButtonClass?
     </>
   );
 }
+
+export function DeviceSettingsMenu({ mobileButtonClass }: { mobileButtonClass?: string }) {
+  const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
+  const [deviceSettingsOpen, setDeviceSettingsOpen] = useState(false);
+
+  const anchorRef = useRef<HTMLButtonElement>(null);
+
+  return (
+    <>
+      <Button ref={anchorRef} onClick={() => setDeviceSettingsOpen(true)} startIcon={<SettingsIcon />}>
+        {isMobile ? 'Settings' : 'Device Settings'}
+      </Button>
+      <DeviceSelectionDialog
+        open={deviceSettingsOpen}
+        onClose={() => {
+          setDeviceSettingsOpen(false);
+        }}
+      />
+    </>
+  );
+}

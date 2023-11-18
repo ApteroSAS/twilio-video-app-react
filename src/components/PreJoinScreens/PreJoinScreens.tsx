@@ -1,73 +1,50 @@
-import React, { useState, useEffect, FormEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 import DeviceSelectionScreen from './DeviceSelectionScreen/DeviceSelectionScreen';
 import IntroContainer from '../IntroContainer/IntroContainer';
 import MediaErrorSnackbar from './MediaErrorSnackbar/MediaErrorSnackbar';
-import RoomNameScreen from './RoomNameScreen/RoomNameScreen';
 import { useAppState } from '../../state';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
-
-export enum Steps {
-  roomNameStep,
-  deviceSelectionStep,
-}
+import { PREVIOUSLY_JOINED_KEY, USER_NAME_KEY } from '../../constants';
 
 export default function PreJoinScreens() {
   const { user } = useAppState();
   const { getAudioAndVideoTracks } = useVideoContext();
   const { URLRoomName } = useParams<{ URLRoomName?: string }>();
-  const [step, setStep] = useState(Steps.roomNameStep);
+  // Use useLocation to access the query string
+  const location = useLocation();
+  // Parse the query string
+  // Parse the query string using URLSearchParams
+  const searchParams = new URLSearchParams(location.search);
 
-  const [name, setName] = useState<string>(user?.displayName || '');
-  const [roomName, setRoomName] = useState<string>('');
+  const [name, setName] = useState<string>(
+    user?.displayName || localStorage.getItem(USER_NAME_KEY) || searchParams.get('userName') || ''
+  );
+  const [roomName] = useState<string>(searchParams.get('roomName') || URLRoomName || '');
 
   const [mediaError, setMediaError] = useState<Error>();
 
   useEffect(() => {
-    if (URLRoomName) {
-      setRoomName(URLRoomName);
-      if (user?.displayName) {
-        setStep(Steps.deviceSelectionStep);
-      }
-    }
-  }, [user, URLRoomName]);
-
-  useEffect(() => {
-    if (step === Steps.deviceSelectionStep && !mediaError) {
+    if (!mediaError) {
       getAudioAndVideoTracks().catch(error => {
         console.log('Error acquiring local media:');
         console.dir(error);
         setMediaError(error);
       });
     }
-  }, [getAudioAndVideoTracks, step, mediaError]);
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    // If this app is deployed as a twilio function, don't change the URL because routing isn't supported.
-    // @ts-ignore
-    if (!window.location.origin.includes('twil.io') && !window.STORYBOOK_ENV) {
-      window.history.replaceState(null, '', window.encodeURI(`/room/${roomName}${window.location.search || ''}`));
-    }
-    setStep(Steps.deviceSelectionStep);
-  };
+  }, [getAudioAndVideoTracks, mediaError]);
 
   return (
     <IntroContainer>
       <MediaErrorSnackbar error={mediaError} />
-      {step === Steps.roomNameStep && (
-        <RoomNameScreen
-          name={name}
-          roomName={roomName}
-          setName={setName}
-          setRoomName={setRoomName}
-          handleSubmit={handleSubmit}
-        />
-      )}
-
-      {step === Steps.deviceSelectionStep && (
-        <DeviceSelectionScreen name={name} roomName={roomName} setStep={setStep} />
-      )}
+      <DeviceSelectionScreen
+        name={name}
+        roomName={roomName}
+        setName={(name: string) => {
+          localStorage.setItem(USER_NAME_KEY, name);
+          setName(name);
+        }}
+      />
     </IntroContainer>
   );
 }

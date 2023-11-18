@@ -21,6 +21,7 @@ import useVideoContext from '../../../hooks/useVideoContext/useVideoContext';
 import FlipCameraIcon from '../../../icons/FlipCameraIcon';
 import useFlipCameraToggle from '../../../hooks/useFlipCameraToggle/useFlipCameraToggle';
 import { VideoRoomMonitor } from '@twilio/video-room-monitor';
+import EndCallButton from '../../Buttons/EndCallButton/EndCallButton';
 
 export const IconContainer = styled('div')({
   display: 'flex',
@@ -102,24 +103,6 @@ export default function Menu(props: { buttonClassName?: string }) {
               <FlipCameraIcon />
             </IconContainer>
             <Typography variant="body1">Flip Camera</Typography>
-          </MenuItem>
-        )}
-
-        {roomType !== 'peer-to-peer' && roomType !== 'go' && (
-          <MenuItem
-            disabled={isFetching}
-            onClick={() => {
-              setMenuOpen(false);
-              if (isRecording) {
-                updateRecordingRules(room!.sid, [{ type: 'exclude', all: true }]);
-              } else {
-                updateRecordingRules(room!.sid, [{ type: 'include', all: true }]);
-              }
-            }}
-            data-cy-recording-button
-          >
-            <IconContainer>{isRecording ? <StopRecordingIcon /> : <StartRecordingIcon />}</IconContainer>
-            <Typography variant="body1">{isRecording ? 'Stop' : 'Start'} Recording</Typography>
           </MenuItem>
         )}
 

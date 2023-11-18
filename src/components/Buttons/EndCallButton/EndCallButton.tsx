@@ -5,6 +5,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 
 import useVideoContext from '../../../hooks/useVideoContext/useVideoContext';
+import { PREVIOUSLY_JOINED_KEY } from '../../../constants';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -23,7 +24,14 @@ export default function EndCallButton(props: { className?: string }) {
   const { room } = useVideoContext();
 
   return (
-    <Button onClick={() => room!.disconnect()} className={clsx(classes.button, props.className)} data-cy-disconnect>
+    <Button
+      onClick={() => {
+        localStorage.removeItem(PREVIOUSLY_JOINED_KEY);
+        room!.disconnect();
+      }}
+      className={clsx(classes.button, props.className)}
+      data-cy-disconnect
+    >
       Disconnect
     </Button>
   );

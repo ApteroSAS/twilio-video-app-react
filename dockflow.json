@@ -1,0 +1,5 @@
+{
+    "image" : "twilio-video-app",
+    "registry" : "rg.fr-par.scw.cloud/aptero",
+    "version": "1.0.0"
+}

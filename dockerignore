@@ -1,0 +1,10 @@
+.circleci
+.github
+.storybook
+build
+cypress
+node_modules
+server
+.env
+.env.example
+docker-server
