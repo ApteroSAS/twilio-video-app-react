@@ -69,59 +69,62 @@ interface DeviceSelectionScreenProps {
   name: string;
   roomName: string;
   setName: (name: string) => void;
+  autoJoin?: boolean;
 }
 
-export default function DeviceSelectionScreen({ name, roomName, setName }: DeviceSelectionScreenProps) {
+export default function DeviceSelectionScreen({ name, roomName, setName, autoJoin }: DeviceSelectionScreenProps) {
   const classes = useStyles();
-  const { getToken, isFetching, isKrispEnabled, isKrispInstalled } = useAppState();
+  const { getToken, isFetching } = useAppState();
   const { connect: chatConnect } = useChatContext();
   const { connect: videoConnect, isAcquiringLocalTracks, isConnecting } = useVideoContext();
-  const { toggleKrisp } = useKrispToggle();
   const disableButtons = isFetching || isAcquiringLocalTracks || isConnecting;
+  const [joining, setJoining] = React.useState(false);
 
-  const [previouslyJoined, setPreviouslyJoined] = React.useState<boolean>(
-    localStorage.getItem(PREVIOUSLY_JOINED_KEY) === 'true'
-  );
-
-  useEffect(() => {
-    const firstTimeFlag = localStorage.getItem(PREVIOUSLY_JOINED_KEY);
-    setPreviouslyJoined(firstTimeFlag === 'true');
-    if (firstTimeFlag === null) {
-      localStorage.setItem(PREVIOUSLY_JOINED_KEY, 'true');
-    }
-  }, []);
+  const { localTracks } = useVideoContext();
+  const hasAudioTrack = localTracks.some(track => track.kind === 'audio');
 
   useEffect(() => {
-    if (previouslyJoined && !disableButtons) {
-      setTimeout(() => {
-        handleJoin();
+    if (
+      autoJoin && //autojoin if previously joined
+      hasAudioTrack &&
+      !disableButtons &&
+      !isFetching &&
+      !joining &&
+      name &&
+      roomName
+    ) {
+      setJoining(true);
+      setTimeout(async () => {
+        await handleJoin();
       }, 1000);
     }
-  }, [previouslyJoined, disableButtons]);
+  }, [hasAudioTrack, autoJoin, disableButtons, isFetching, joining, name, roomName]);
 
-  const handleJoin = () => {
-    getToken(name, roomName)
-      .then(({ token }) => {
-        if (!token) {
-          console.error('no token');
-          localStorage.removeItem(PREVIOUSLY_JOINED_KEY);
-        } else {
-          videoConnect(token);
-          process.env.REACT_APP_DISABLE_TWILIO_CONVERSATIONS !== 'true' && chatConnect(token);
+  const handleJoin = async () => {
+    console.log('Joining meeting : ' + name + ' in room ' + roomName + '');
+    try {
+      const { token } = await getToken(name, roomName);
+      if (!token) {
+        throw new Error('Failed to get token');
+      } else {
+        await videoConnect(token);
+        if (process.env.REACT_APP_DISABLE_TWILIO_CONVERSATIONS !== 'true') {
+          chatConnect(token);
         }
-      })
-      .catch(err => {
-        console.error('error');
-        console.error(err);
-        localStorage.removeItem(PREVIOUSLY_JOINED_KEY);
-      });
+      }
+    } catch (err) {
+      console.error(err);
+      localStorage.removeItem(PREVIOUSLY_JOINED_KEY);
+      window.location.reload();
+      setJoining(false);
+    }
   };
 
   const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
   };
 
-  if (isFetching || isConnecting || (previouslyJoined && roomName && name)) {
+  if (isFetching || isConnecting) {
     return (
       <Grid container justifyContent="center" alignItems="center" direction="column" style={{ height: '100%' }}>
         <div>

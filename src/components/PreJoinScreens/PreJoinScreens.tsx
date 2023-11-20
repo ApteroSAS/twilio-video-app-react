@@ -34,6 +34,16 @@ export default function PreJoinScreens() {
     }
   }, [getAudioAndVideoTracks, mediaError]);
 
+  //only used to have the initial value of PREVIOUSLY_JOINED_KEY
+  const [hasJoinedPreviously] = React.useState(localStorage.getItem(PREVIOUSLY_JOINED_KEY) === 'true');
+
+  useEffect(() => {
+    const firstTimeFlag = localStorage.getItem(PREVIOUSLY_JOINED_KEY);
+    if (firstTimeFlag === null) {
+      localStorage.setItem(PREVIOUSLY_JOINED_KEY, 'true'); //set flag for nex time
+    }
+  }, []);
+
   return (
     <IntroContainer>
       <MediaErrorSnackbar error={mediaError} />
@@ -44,6 +54,7 @@ export default function PreJoinScreens() {
           localStorage.setItem(USER_NAME_KEY, name);
           setName(name);
         }}
+        autoJoin={hasJoinedPreviously} //if he has previously joined, autojoin
       />
     </IntroContainer>
   );

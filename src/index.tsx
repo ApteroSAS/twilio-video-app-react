@@ -17,6 +17,7 @@ import { ParticipantProvider } from './components/ParticipantProvider';
 import { VideoProvider } from './components/VideoProvider';
 import useConnectionOptions from './utils/useConnectionOptions/useConnectionOptions';
 import UnsupportedBrowserWarning from './components/UnsupportedBrowserWarning/UnsupportedBrowserWarning';
+import { SpotLightView } from './components/SpotLightView/SpotLightView';
 
 const VideoApp = () => {
   const { error, setError } = useAppState();
@@ -46,6 +47,9 @@ export const ReactApp = () => (
             </PrivateRoute>
             <PrivateRoute path="/room/:URLRoomName">
               <VideoApp />
+            </PrivateRoute>
+            <PrivateRoute path="/view/:URLRoomName">
+              <SpotLightView />
             </PrivateRoute>
             <Route path="/login">
               <LoginPage />
