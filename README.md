@@ -1,4 +1,5 @@
 http://localhost:3000/?userName=user1&roomName=testroom1
+http://localhost:3000/room/test1?userName=user1
 
 # Twilio Video React App
 

@@ -13,6 +13,7 @@ import { useAppState } from '../../state';
 import useChatContext from '../../hooks/useChatContext/useChatContext';
 import useScreenShareParticipant from '../../hooks/useScreenShareParticipant/useScreenShareParticipant';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
+import { useLocation } from 'react-router-dom';
 
 const useStyles = makeStyles((theme: Theme) => {
   const totalMobileSidebarHeight = `${theme.sidebarMobileHeight +
@@ -79,6 +80,11 @@ export default function Room() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const screenShareParticipant = useScreenShareParticipant();
 
+  // Use useLocation to access the query string
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const soundEnabled: boolean = searchParams.get('disableSound') !== 'true';
+
   // Here we switch to speaker view when a participant starts sharing their screen, but
   // the user is still free to switch back to gallery view.
   useSetSpeakerViewOnScreenShare(screenShareParticipant, room, setIsGalleryViewActive, isGalleryViewActive);
@@ -94,7 +100,7 @@ export default function Room() {
         It is in a separate component so that the audio tracks will always be rendered, and that they will never be 
         unnecessarily unmounted/mounted as the user switches between Gallery View and speaker View.
       */}
-      <ParticipantAudioTracks />
+      {soundEnabled && <ParticipantAudioTracks />}
 
       {isGalleryViewActive ? (
         isMobile ? (
