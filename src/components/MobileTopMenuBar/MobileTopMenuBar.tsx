@@ -3,6 +3,7 @@ import React from 'react';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
 import EndCallButton from '../Buttons/EndCallButton/EndCallButton';
 import Menu from '../MenuBar/Menu/Menu';
+import { useLocation } from 'react-router-dom';
 
 const useStyles = makeStyles((theme: Theme) => ({
   container: {
@@ -33,10 +34,14 @@ const useStyles = makeStyles((theme: Theme) => ({
 export default function MobileTopMenuBar() {
   const classes = useStyles();
   const { room } = useVideoContext();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+
+  const customRoomName = searchParams.get('room_name') || room!.name || '';
 
   return (
     <Grid container alignItems="center" justifyContent="space-between" className={classes.container}>
-      <Typography variant="subtitle1">{room!.name}</Typography>
+      <Typography variant="subtitle1">{customRoomName}</Typography>
       <div>
         <EndCallButton className={classes.endCallButton} />
         <Menu buttonClassName={classes.settingsButton} />

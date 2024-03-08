@@ -13,6 +13,7 @@ import ToggleAudioButton from '../Buttons/ToggleAudioButton/ToggleAudioButton';
 import ToggleChatButton from '../Buttons/ToggleChatButton/ToggleChatButton';
 import ToggleVideoButton from '../Buttons/ToggleVideoButton/ToggleVideoButton';
 import ToggleScreenShareButton from '../Buttons/ToogleScreenShareButton/ToggleScreenShareButton';
+import { useLocation } from 'react-router-dom';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -71,6 +72,11 @@ export default function MenuBar() {
   const { room } = useVideoContext();
   const participants = useParticipants();
 
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+
+  const customRoomName = searchParams.get('room_name') || room!.name || '';
+
   return (
     <>
       {isSharingScreen && (
@@ -84,7 +90,7 @@ export default function MenuBar() {
           <Hidden smDown>
             <Grid style={{ flex: 1 }}>
               <Typography variant="body1">
-                {room!.name} | {participants.length + 1} participant{participants.length ? 's' : ''}
+                {customRoomName} | {participants.length + 1} participant{participants.length ? 's' : ''}
               </Typography>
             </Grid>
           </Hidden>
